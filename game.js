@@ -1,4 +1,4 @@
-console.log('Hello');
+var keysPressed = {};
 
 var canvasEle;
 var canvasContext;
@@ -31,7 +31,7 @@ function Paddle(xPos){
     this.y = (canvas.height / 2) - (this.height / 2);
     this.x = xPos;
     this.colour = 'white';
-    this.speed = 6;
+    this.speed = 8;
 }
 
 function Score(x, y) {
@@ -57,6 +57,28 @@ window.onload = function () {
         var mousePos = getMousePosition(evt);
         paddle1.y = mousePos.y - (PADDLE_HEIGHT / 2);
     });
+
+    document.addEventListener('keydown', function(e) {
+        keysPressed[e.keyCode] = true;
+    });
+    document.addEventListener('keyup', function(e) {
+        keysPressed[e.keyCode] = false;
+    });
+}
+
+function playerMoves() {
+    if (keysPressed[87]) { // w key
+        paddle1.y -= paddle2.speed;
+    }
+    if (keysPressed[83]) { // s key
+        paddle1.y += paddle2.speed;
+    }
+    if (keysPressed[38]) { // up key
+        paddle2.y -= paddle2.speed;
+    }
+    if (keysPressed[40]) { // down key
+        paddle2.y += paddle2.speed;
+    }
 }
 
 function initGame(){
@@ -75,6 +97,7 @@ function initGame(){
 function moveEverything(){
 
     computerMovement();
+    //playerMoves();
     
     // check collisions with paddle1
     if (ball.x - ball.radius < paddle1.x + PADDLE_WIDTH) {
