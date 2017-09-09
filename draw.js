@@ -12,9 +12,3 @@ function drawBall(canvasContext, ball) {
     canvasContext.arc(ball.x, ball.y, ball.radius, startAngle, endAngle, true);
     canvasContext.fill();
 }
-
-function drawMousePos(canvasContext, mouse) {
-    var mousePosText = '(' + mouse.x + ',' + mouse.y + ')';
-    canvasContext.fillStyle = 'yellow';
-    canvasContext.fillText(mousePosText, mouse.x, mouse.y);
-}

@@ -11,9 +11,13 @@ const PADDLE_WIDTH = 100;
 const PADDLE_EDGE_OFFSET = 15;
 
 var brickGrid = [];
-const NUMBER_OF_BRICKS = 8;
-const BRICK_WIDTH = 100;
-const BRICK_HEIGHT = 40;
+const BRICK_COLUMNS = 10;
+const BRICK_WIDTH = 80;
+
+const BRICK_ROWS = 14;
+const BRICK_HEIGHT = 20;
+
+const BRICK_GAP = 2;
 
 var mouse = { x: 0, y: 0 };
 
@@ -44,10 +48,14 @@ function initGame() {
     ball = new Ball(canvas, BALL_RADIUS);
     paddle = new Paddle();
 
-    for (var i = 0; i < NUMBER_OF_BRICKS; i++) {
-        var brickStart = BRICK_WIDTH * i;
-        brickGrid.push(new Brick(brickStart, 0, BRICK_WIDTH - 2, BRICK_HEIGHT));
-    }
+    for (var row = 0; row < BRICK_ROWS; row++) {
+        for (var col = 0; col < BRICK_COLUMNS; col++) {
+            var brickStartX = BRICK_WIDTH * col;
+            var brickStartY = BRICK_HEIGHT * row;
+            brickGrid.push(new Brick(brickStartX, BRICK_HEIGHT * row, 
+                BRICK_WIDTH - BRICK_GAP, BRICK_HEIGHT - BRICK_GAP));
+        }
+    }    
 }
 
 function updateGame() {
@@ -55,30 +63,33 @@ function updateGame() {
     drawEverything();
 }
 
-function handleMouseMove(evt) {
-    var mousePos = getMousePosition(evt, canvasEle);
-    mouse.x = mousePos.x;
-    mouse.y = mousePos.y;
-    paddle.x = mousePos.x - (PADDLE_WIDTH / 2);
-}
-
 function moveEverything() {
 
-    if (ball.x > canvas.width) { // right side
-        ball.speedX = -ball.speedX;
-    }
-    if (ball.x < 0) { // left side
-        ball.speedX = -ball.speedX;
-    }
+    wallCollisionCheck();
+    paddleCollisionCheck();
+    brickCollisionCheck();
 
-    if (ball.y > canvas.height) { // bottom
-        //ball.speedY = -ball.speedY;
-        ballReset();
-    }
-    if (ball.y < 0) { // top
-        ball.speedY = -ball.speedY;
-    }
+    ball.x += ball.speedX;
+    ball.y += ball.speedY;
+}
 
+function brickCollisionCheck() {
+    var ballCol = Math.floor(ball.x/BRICK_WIDTH);
+    var ballRow = Math.floor(ball.y/BRICK_HEIGHT);
+
+    var ballIndex = brickIndex(ballCol, ballRow);   
+
+    if (ballRow >= 0 && ballRow < BRICK_ROWS 
+        && ballCol >= 0 && ballCol < BRICK_COLUMNS) { // prevent weird wrapping bugs
+
+            if (brickGrid[ballIndex].visible) {
+                brickGrid[ballIndex].setVisibility(false);
+                ball.speedY = -ball.speedY;
+            }    
+    }
+}
+
+function paddleCollisionCheck() {
     var paddleTop = paddle.y;
     var paddleBottom = paddleTop + PADDLE_HEIGHT;
     var paddleLeft = paddle.x;
@@ -93,9 +104,22 @@ function moveEverything() {
         var ballDeltaXFromPaddle = ball.x - paddleCenter;
         ball.speedX = ballDeltaXFromPaddle * 0.3;
     }
+}
 
-    ball.x += ball.speedX;
-    ball.y += ball.speedY;
+function wallCollisionCheck() {
+    if (ball.x > canvas.width) { // right side
+        ball.speedX = -ball.speedX;
+    }
+    if (ball.x < 0) { // left side
+        ball.speedX = -ball.speedX;
+    }
+
+    if (ball.y > canvas.height) { // bottom
+        ballReset();
+    }
+    if (ball.y < 0) { // top
+        ball.speedY = -ball.speedY;
+    }
 }
 
 function ballReset() {
@@ -107,10 +131,35 @@ function drawEverything() {
     drawRect(canvasContext, canvas);
     drawRect(canvasContext, paddle);
     drawBall(canvasContext, ball);
-    drawMousePos(canvasContext, mouse);
-
+    
     for (var i = 0; i < brickGrid.length; i++) {
-        drawRect(canvasContext, brickGrid[i]);
+        if (brickGrid[i].visible) {
+            drawRect(canvasContext, brickGrid[i]);
+        }
     }
+
+    drawMousePos(canvasContext, mouse);
+}
+
+function drawMousePos(canvasContext, mouse) {
+    var mouseCol = Math.floor(mouse.x/BRICK_WIDTH);
+    var mouseRow = Math.floor(mouse.y/BRICK_HEIGHT);
+
+    var mouseIndex = brickIndex(mouseCol, mouseRow);
+
+    var mousePosText = '(' + mouseCol + ',' + mouseRow + '): ' + mouseIndex;
+    canvasContext.fillStyle = 'yellow';
+    canvasContext.fillText(mousePosText, mouse.x, mouse.y);
+}
+
+function brickIndex(col, row) {
+    return col + (BRICK_COLUMNS * row);
+}
+
+function handleMouseMove(evt) {
+    var mousePos = getMousePosition(evt, canvasEle);
+    mouse.x = mousePos.x;
+    mouse.y = mousePos.y;
+    paddle.x = mousePos.x - (PADDLE_WIDTH / 2);
 }
 
