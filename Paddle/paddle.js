@@ -10,6 +10,11 @@ const PADDLE_HEIGHT = 10;
 const PADDLE_WIDTH = 100;
 const PADDLE_EDGE_OFFSET = 15;
 
+var brickGrid = [];
+const NUMBER_OF_BRICKS = 8;
+const BRICK_WIDTH = 100;
+const BRICK_HEIGHT = 40;
+
 var mouse = { x: 0, y: 0 };
 
 function Paddle() {
@@ -38,6 +43,11 @@ function initGame() {
     canvas = { x: 0, y: 0, width: canvasEle.width, height: canvasEle.height, colour: 'black' };
     ball = new Ball(canvas, BALL_RADIUS);
     paddle = new Paddle();
+
+    for (var i = 0; i < NUMBER_OF_BRICKS; i++) {
+        var brickStart = BRICK_WIDTH * i;
+        brickGrid.push(new Brick(brickStart, 0, BRICK_WIDTH - 2, BRICK_HEIGHT));
+    }
 }
 
 function updateGame() {
@@ -98,5 +108,9 @@ function drawEverything() {
     drawRect(canvasContext, paddle);
     drawBall(canvasContext, ball);
     drawMousePos(canvasContext, mouse);
+
+    for (var i = 0; i < brickGrid.length; i++) {
+        drawRect(canvasContext, brickGrid[i]);
+    }
 }
 

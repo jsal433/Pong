@@ -5,4 +5,4 @@ function Ball(canvas, radius) {
     this.speedX = 5;
     this.speedY = 7;
     this.colour = 'white';
-};
+}
