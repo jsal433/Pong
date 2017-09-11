@@ -12,7 +12,7 @@ const PADDLE_HEIGHT = 10;
 const PADDLE_WIDTH = 100;
 const PADDLE_EDGE_OFFSET = 15;
 
-var bricksLeft;
+var bricksRemaining;
 var brickGrid;
 const BRICK_COLUMNS = 10;
 const BRICK_WIDTH = 80;
@@ -53,7 +53,7 @@ function initGame() {
     ball = new Ball(canvas, BALL_RADIUS);
     paddle = new Paddle();
 
-    bricksLeft = 0;
+    bricksRemaining = 0;
     brickGrid = [];
     for (var row = 0; row < BRICK_ROWS; row++) {
         for (var col = 0; col < BRICK_COLUMNS; col++) {
@@ -67,7 +67,7 @@ function initGame() {
             else{
                 brickGrid.push(new Brick(brickStartX, BRICK_HEIGHT * row, 
                     BRICK_WIDTH - BRICK_GAP, BRICK_HEIGHT - BRICK_GAP, true));
-                bricksLeft++;
+                bricksRemaining++;
             }    
         }
     } 
@@ -107,8 +107,8 @@ function brickCollisionCheck() {
 
             if (brickExistsAndIsVisible(ballIndex)) {
                 brickGrid[ballIndex].setVisibility(false);
-                bricksLeft--;
-                if (bricksLeft < 1) {
+                bricksRemaining--;
+                if (bricksRemaining < 1) {
                     initGame();
                     return;
                 }
