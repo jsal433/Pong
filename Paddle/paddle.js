@@ -10,6 +10,7 @@ const PADDLE_HEIGHT = 10;
 const PADDLE_WIDTH = 100;
 const PADDLE_EDGE_OFFSET = 15;
 
+var bricksLeft;
 var brickGrid = [];
 const BRICK_COLUMNS = 10;
 const BRICK_WIDTH = 80;
@@ -48,12 +49,15 @@ function initGame() {
     ball = new Ball(canvas, BALL_RADIUS);
     paddle = new Paddle();
 
+    bricksLeft = 0;
+
     for (var row = 0; row < BRICK_ROWS; row++) {
         for (var col = 0; col < BRICK_COLUMNS; col++) {
             var brickStartX = BRICK_WIDTH * col;
             var brickStartY = BRICK_HEIGHT * row;
             brickGrid.push(new Brick(brickStartX, BRICK_HEIGHT * row, 
                 BRICK_WIDTH - BRICK_GAP, BRICK_HEIGHT - BRICK_GAP));
+                bricksLeft++;
         }
     }    
 }
@@ -84,6 +88,8 @@ function brickCollisionCheck() {
 
             if (brickGrid[ballIndex].visible) {
                 brickGrid[ballIndex].setVisibility(false);
+                bricksLeft--;
+                console.log(bricksLeft);
 
                 var prevX = ball.x - ball.speedX;
                 var prevY = ball.y - ball.speedY;
@@ -197,9 +203,12 @@ function handleMouseMove(evt) {
     mouse.y = mousePos.y;
     paddle.x = mousePos.x - (PADDLE_WIDTH / 2);
 
-    // ball.x = mouse.x; //cheat mode
-    // ball.y = mouse.y;
-    // ball.speedX = 0.5;
-    // ball.speedY = -0.5;
+    cheatMode();
 }
 
+function cheatMode() {
+    ball.x = mouse.x; //cheat mode
+    ball.y = mouse.y;
+    ball.speedX = 0.5;
+    ball.speedY = -0.5;
+}
