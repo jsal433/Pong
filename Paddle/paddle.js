@@ -101,7 +101,10 @@ function brickCollisionCheck() {
             if (brickGrid[ballIndex].visible) {
                 brickGrid[ballIndex].setVisibility(false);
                 bricksLeft--;
-                console.log(bricksLeft);
+                if (bricksLeft < 1) {
+                    initGame();
+                    return;
+                }
 
                 var prevX = ball.x - ball.speedX;
                 var prevY = ball.y - ball.speedY;
@@ -152,17 +155,17 @@ function paddleCollisionCheck() {
 }
 
 function wallCollisionCheck() {
-    if (ball.x > canvas.width) { // right side
+    if (ball.x > canvas.width && ball.speedX > 0) { // right side, only flip if ball is travelling right
         ball.speedX = -ball.speedX;
     }
-    if (ball.x < 0) { // left side
+    if (ball.x < 0 && ball.speedX < 0) { // left side, only flip if ball is travelling left
         ball.speedX = -ball.speedX;
     }
 
     if (ball.y > canvas.height) { // bottom
         ballReset();
     }
-    if (ball.y < 0) { // top
+    if (ball.y < 0 && ball.speedY < 0) { // top, only flip if ball is travelling down
         ball.speedY = -ball.speedY;
     }
 }
