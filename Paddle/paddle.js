@@ -102,10 +102,10 @@ function brickCollisionCheck() {
 
     var ballIndex = brickIndex(ballCol, ballRow);   
 
-    if (ballRow >= 0 && ballRow < BRICK_ROWS 
-        && ballCol >= 0 && ballCol < BRICK_COLUMNS) { // prevent weird wrapping bugs
+    if (ballRow >= 0 && ballRow < BRICK_ROWS // when ball is on edge of screen it can enter unexpected col 
+        && ballCol >= 0 && ballCol < BRICK_COLUMNS) { // or row this prevents weird wrapping bugs
 
-            if (brickExistsAndIsVisible(ballIndex)) {
+            if (brickExistsAndIsVisible(ballIndex)) { // ball collided with new brick
                 brickGrid[ballIndex].setVisibility(false);
                 bricksRemaining--;
                 if (bricksRemaining < 1) {
@@ -113,22 +113,26 @@ function brickCollisionCheck() {
                     return;
                 }
 
-                var prevX = ball.x - ball.speedX;
-                var prevY = ball.y - ball.speedY;
-                var prevCol = getColumn(prevX);;
-                var prevRow = getRow(prevY);
+                var prevBallX = ball.x - ball.speedX;
+                var prevBallY = ball.y - ball.speedY;
+                var prevBallCol = getColumn(prevBallX);;
+                var prevBallRow = getRow(prevBallY);
 
                 var bothFailed = true;
-                if (prevCol !== ballCol) {
-                    var leftorRightBrick = brickIndex(prevCol, ballRow);
-                    //console.log(leftorRightBrick);
+                if (prevBallCol !== ballCol) { // if the column the ball was in the previous frame is not
+                                             // the column it is in now, ball hit side of brick
+                    // get index of last brick the ball was in
+                    var leftorRightBrick = brickIndex(prevBallCol, ballRow); 
+
+                    // this check is used for if the ball travels diagonally accross a column and row
+                    // only reverse x direction if there is no brick in the column next to the one being hit
                     if (!brickExistsAndIsVisible(leftorRightBrick)) {
                         ball.speedX = -ball.speedX;
                         bothFailed = false;
                     }
                 }
-                if (prevRow !== ballRow) {
-                    var topOrBottomBrick = brickIndex(ballCol, prevRow);
+                if (prevBallRow !== ballRow) {
+                    var topOrBottomBrick = brickIndex(ballCol, prevBallRow);
                     //console.log(topOrBottomBrick);
                     if (!brickExistsAndIsVisible(topOrBottomBrick)) {
                         ball.speedY = -ball.speedY;
@@ -183,17 +187,17 @@ function ballReset() {
 }
 
 function drawEverything() {
-    drawRect(canvasContext, canvas);
-    drawRect(canvasContext, paddle);
-    drawBall(canvasContext, ball);
+    drawRect(canvasContext, canvas); // draw background
+    drawRect(canvasContext, paddle); // draw paddle
+    drawBall(canvasContext, ball); // draw ball
     
-    for (var i = 0; i < brickGrid.length; i++) {
+    for (var i = 0; i < brickGrid.length; i++) { // draw visible bricks
         if (brickGrid[i].visible) {
             drawRect(canvasContext, brickGrid[i]);
         }
     }
 
-    drawMousePos(canvasContext, mouse);
+    //drawMousePos(mouse); // draw mouse position (debugging)
 }
 
 function getColumn(xPos) {
@@ -204,7 +208,7 @@ function getRow(yPos) {
     return Math.floor(yPos/BRICK_HEIGHT);
 }
 
-function drawMousePos(canvasContext, mouse) {
+function drawMousePos(mouse) {
     var mouseCol = getColumn(mouse.x);
     var mouseRow = getRow(mouse.y);
 
