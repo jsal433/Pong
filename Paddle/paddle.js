@@ -2,6 +2,8 @@ var canvasEle;
 var canvasContext;
 var canvas;
 
+var cheatsOn = false;
+
 var ball;
 const BALL_RADIUS = 10;
 
@@ -11,12 +13,12 @@ const PADDLE_WIDTH = 100;
 const PADDLE_EDGE_OFFSET = 15;
 
 var bricksLeft;
-var brickGrid = [];
+var brickGrid;
 const BRICK_COLUMNS = 10;
 const BRICK_WIDTH = 80;
 
-const BRICK_ROWS = 7; //14
-const BRICK_HEIGHT = 40; // 20
+const BRICK_ROWS = 14;
+const BRICK_HEIGHT = 20;
 
 const BRICK_GAP = 2;
 
@@ -42,6 +44,8 @@ window.onload = function () {
     setInterval(updateGame, refreshRate);
 
     canvasEle.addEventListener('mousemove', handleMouseMove);
+
+    document.addEventListener('keypress', toggleCheatMode);
 }
 
 function initGame() {
@@ -50,16 +54,24 @@ function initGame() {
     paddle = new Paddle();
 
     bricksLeft = 0;
-
+    brickGrid = [];
     for (var row = 0; row < BRICK_ROWS; row++) {
         for (var col = 0; col < BRICK_COLUMNS; col++) {
             var brickStartX = BRICK_WIDTH * col;
             var brickStartY = BRICK_HEIGHT * row;
-            brickGrid.push(new Brick(brickStartX, BRICK_HEIGHT * row, 
-                BRICK_WIDTH - BRICK_GAP, BRICK_HEIGHT - BRICK_GAP));
+            
+            if (row <= 3) {
+                brickGrid.push(new Brick(brickStartX, BRICK_HEIGHT * row, 
+                    BRICK_WIDTH - BRICK_GAP, BRICK_HEIGHT - BRICK_GAP, false));
+            }  
+            else{
+                brickGrid.push(new Brick(brickStartX, BRICK_HEIGHT * row, 
+                    BRICK_WIDTH - BRICK_GAP, BRICK_HEIGHT - BRICK_GAP, true));
                 bricksLeft++;
+            }    
         }
-    }    
+    } 
+       
 }
 
 function updateGame() {
@@ -99,7 +111,7 @@ function brickCollisionCheck() {
                 var bothFailed = true;
                 if (prevCol !== ballCol) {
                     var leftorRightBrick = brickIndex(prevCol, ballRow);
-                    console.log(leftorRightBrick);
+                    //console.log(leftorRightBrick);
                     if (!brickGrid[leftorRightBrick].visible) {
                         ball.speedX = -ball.speedX;
                         bothFailed = false;
@@ -107,7 +119,7 @@ function brickCollisionCheck() {
                 }
                 if (prevRow !== ballRow) {
                     var topOrBottomBrick = brickIndex(ballCol, prevRow);
-                    console.log(topOrBottomBrick);
+                    //console.log(topOrBottomBrick);
                     if (!brickGrid[topOrBottomBrick].visible) {
                         ball.speedY = -ball.speedY;
                         bothFailed = false;
@@ -202,13 +214,23 @@ function handleMouseMove(evt) {
     mouse.x = mousePos.x;
     mouse.y = mousePos.y;
     paddle.x = mousePos.x - (PADDLE_WIDTH / 2);
+    
+    if (cheatsOn) {
+        cheatMode();
+    }
+}
 
-    cheatMode();
+function toggleCheatMode(e) {
+    if (e.keyCode === 99) { // c key
+        cheatsOn = !cheatsOn;
+        ball.speedX = 5;
+        ball.speedY = 7;
+    }
 }
 
 function cheatMode() {
     ball.x = mouse.x; //cheat mode
     ball.y = mouse.y;
-    ball.speedX = 0.5;
-    ball.speedY = -0.5;
+    ball.speedX = 4;
+    ball.speedY = -4;
 }

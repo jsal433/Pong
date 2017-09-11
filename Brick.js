@@ -1,10 +1,10 @@
-function Brick(x, y, width, height) {
+function Brick(x, y, width, height, visible) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
     this.colour = 'blue';
-    this.visible = true;
+    this.visible = visible;
 }
 
 Brick.prototype.setVisibility = setVisibility;
