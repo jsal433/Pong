@@ -89,6 +89,13 @@ function moveEverything() {
     brickCollisionCheck();
 }
 
+function brickExistsAndIsVisible(ballIndex) {
+    if (ballIndex < brickGrid.length) {
+        return brickGrid[ballIndex].visible;
+    }
+    else return false;
+}
+
 function brickCollisionCheck() {
     var ballCol = getColumn(ball.x);
     var ballRow = getRow(ball.y);
@@ -98,7 +105,7 @@ function brickCollisionCheck() {
     if (ballRow >= 0 && ballRow < BRICK_ROWS 
         && ballCol >= 0 && ballCol < BRICK_COLUMNS) { // prevent weird wrapping bugs
 
-            if (brickGrid[ballIndex].visible) {
+            if (brickExistsAndIsVisible(ballIndex)) {
                 brickGrid[ballIndex].setVisibility(false);
                 bricksLeft--;
                 if (bricksLeft < 1) {
@@ -115,7 +122,7 @@ function brickCollisionCheck() {
                 if (prevCol !== ballCol) {
                     var leftorRightBrick = brickIndex(prevCol, ballRow);
                     //console.log(leftorRightBrick);
-                    if (!brickGrid[leftorRightBrick].visible) {
+                    if (!brickExistsAndIsVisible(leftorRightBrick)) {
                         ball.speedX = -ball.speedX;
                         bothFailed = false;
                     }
@@ -123,7 +130,7 @@ function brickCollisionCheck() {
                 if (prevRow !== ballRow) {
                     var topOrBottomBrick = brickIndex(ballCol, prevRow);
                     //console.log(topOrBottomBrick);
-                    if (!brickGrid[topOrBottomBrick].visible) {
+                    if (!brickExistsAndIsVisible(topOrBottomBrick)) {
                         ball.speedY = -ball.speedY;
                         bothFailed = false;
                     }
