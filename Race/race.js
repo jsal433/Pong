@@ -2,13 +2,15 @@ var canvasEle;
 var canvasContext;
 var canvas;
 
-var carPick = document.createElement('img');
-var carPickLoaded = false;
+var car1Pic = document.createElement('img');
+var car1PicLoaded = false;
+var car2Pic = document.createElement('img');
+var car2PicLoaded = false;
 
 var cheatsOn = false;
 
-var ball;
-const BALL_RADIUS = 10;
+var car1;
+var car2;
 
 var trackGrid;
 const TRACK_COLUMNS = 20;
@@ -33,12 +35,25 @@ window.onload = function () {
 
     canvasEle.addEventListener('mousemove', handleMouseMove);
 
+    car1Pic.src = 'car1.png';
+
+    car1Pic.onload = function () {
+        car1PicLoaded = true;
+    }
+
+    car2Pic.src = 'player1car.png';
+
+    car2Pic.onload = function () {
+        car2PicLoaded = true;
+    }
+
     document.addEventListener('keypress', toggleCheatMode);
 }
 
 function initGame() {
     canvas = { x: 0, y: 0, width: canvasEle.width, height: canvasEle.height, colour: 'black' };
-    ball = new Ball(canvas, BALL_RADIUS);
+    car1 = new Car();
+    car2 = new Car();
     trackGridLayout = [ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                         1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
                         1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
@@ -49,7 +64,7 @@ function initGame() {
                         1,0,0,1,0,0,0,0,0,1,1,0,0,1,0,0,1,0,0,1,
                         1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0,1,0,0,1,
                         1,0,0,1,0,0,1,1,0,0,1,0,0,1,0,0,1,0,0,1,
-                        1,0,2,1,0,0,1,1,0,0,0,0,0,1,0,0,1,0,0,1,
+                        1,3,2,1,0,0,1,1,0,0,0,0,0,1,0,0,1,0,0,1,
                         1,1,1,1,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,
                         1,0,0,0,0,0,1,1,1,0,0,0,1,1,0,0,0,0,0,1,
                         1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,1,1,
@@ -67,101 +82,108 @@ function initGame() {
                 index++;
         }
     } 
-    ballReset(); 
+    carReset(); 
 }
 
 function updateGame() {
-    //moveEverything();
+    moveEverything();
     drawEverything();
 }
 
 function moveEverything() {
 
-    ball.x += ball.speedX;
-    ball.y += ball.speedY;
+    car1.x += Math.cos(car1.angle) * car1.speed;
+    car1.y += Math.sin(car1.angle) * car1.speed;
+    car1.angle += 0.02;
+    car2.angle += 0.1;
 
-    wallCollisionCheck();
-    trackCollisionCheck();
+    //wallCollisionCheck();
+    //trackCollisionCheck();
 }
 
-function trackExistsAndIsVisible(ballIndex) {
-    if (ballIndex < trackGrid.length) {
-        return trackGrid[ballIndex].state === 1;
+function trackExistsAndIsVisible(carIndex) {
+    if (carIndex < trackGrid.length) {
+        return trackGrid[carIndex].state === 1;
     }
     else return false;
 }
 
 function trackCollisionCheck() {
-    var ballCol = getColumn(ball.x);
-    var ballRow = getRow(ball.y);
+    var carCol = getColumn(car1.x);
+    var carRow = getRow(car1.y);
 
-    var ballIndex = trackIndex(ballCol, ballRow);   
+    var carIndex = trackIndex(carCol, carRow);   
 
-    if (ballRow >= 0 && ballRow < TRACK_ROWS // when ball is on edge of screen it can enter unexpected col 
-        && ballCol >= 0 && ballCol < TRACK_COLUMNS) { // or row this prevents weird wrapping bugs
+    if (carRow >= 0 && carRow < TRACK_ROWS // when car is on edge of screen it can enter unexpected col 
+        && carCol >= 0 && carCol < TRACK_COLUMNS) { // or row this prevents weird wrapping bugs
 
-            if (trackExistsAndIsVisible(ballIndex)) { // ball collided with new track
+            if (trackExistsAndIsVisible(carIndex)) { // car collided with new track
 
-                var prevBallX = ball.x - ball.speedX;
-                var prevBallY = ball.y - ball.speedY;
-                var prevBallCol = getColumn(prevBallX);;
-                var prevBallRow = getRow(prevBallY);
+                var prevCarX = car1.x - ca1r.speedX;
+                var prevCarY = car1.y - car1.speedY;
+                var prevCarCol = getColumn(prevCarX);;
+                var prevCarRow = getRow(prevCarY);
 
                 var bothFailed = true;
-                if (prevBallCol !== ballCol) { // if the column the ball was in the previous frame is not
-                                             // the column it is in now, ball hit side of track
-                    // get index of last track the ball was in
-                    var leftorRightTrack = trackIndex(prevBallCol, ballRow); 
+                if (prevCarCol !== carCol) { // if the column the car was in the previous frame is not
+                                             // the column it is in now, car hit side of track
+                    // get index of last track the car was in
+                    var leftorRightTrack = trackIndex(prevCarCol, carRow); 
 
-                    // this check is used for if the ball travels diagonally accross a column and row
+                    // this check is used for if the car travels diagonally accross a column and row
                     // only reverse x direction if there is no track in the column next to the one being hit
                     if (!trackExistsAndIsVisible(leftorRightTrack)) {
-                        ball.speedX = -ball.speedX;
+                        car1.speedX = -car1.speedX;
                         bothFailed = false;
                     }
                 }
-                if (prevBallRow !== ballRow) {
-                    var topOrBottomTrack = trackIndex(ballCol, prevBallRow);
+                if (prevCarRow !== carRow) {
+                    var topOrBottomTrack = trackIndex(carCol, prevCarRow);
                     //console.log(topOrBottomTrack);
                     if (!trackExistsAndIsVisible(topOrBottomTrack)) {
-                        ball.speedY = -ball.speedY;
+                        car1.speedY = -car1.speedY;
                         bothFailed = false;
                     }
                 }
 
                 if (bothFailed) {
-                    ball.speedY = -ball.speedY;
-                    ball.speedX = -ball.speedX;
+                    car1.speedY = -car1.speedY;
+                    car1.speedX = -car1.speedX;
                 }
             }    
     }
 }
 
 function wallCollisionCheck() {
-    if (ball.x > canvas.width && ball.speedX > 0) { // right side, only flip if ball is travelling right
-        ball.speedX = -ball.speedX;
+    if (car1.x > canvas.width && car1.speedX > 0) { // right side, only flip if car is travelling right
+        car1.speedX = -car1.speedX;
     }
-    if (ball.x < 0 && ball.speedX < 0) { // left side, only flip if ball is travelling left
-        ball.speedX = -ball.speedX;
+    if (car1.x < 0 && car1.speedX < 0) { // left side, only flip if car is travelling left
+        car1.speedX = -car1.speedX;
     }
 
-    if (ball.y > canvas.height) { // bottom
-        ballReset();
+    if (car1.y > canvas.height) { // bottom
+        carReset();
     }
-    if (ball.y < 0 && ball.speedY < 0) { // top, only flip if ball is travelling down
-        ball.speedY = -ball.speedY;
+    if (car1.y < 0 && car1.speedY < 0) { // top, only flip if car is travelling down
+        car1.speedY = -car1.speedY;
     }
 }
 
-function ballReset() {
+function carReset() {
     for (var row = 0; row < TRACK_ROWS; row++) {
         for (var col = 0; col < TRACK_COLUMNS; col++) {
             var arrayIndex = trackIndex(col, row);
 
             if (trackGridLayout[arrayIndex] === 2) {
                 trackGridLayout[arrayIndex] = 0;
-                ball.x = col * TRACK_WIDTH + TRACK_WIDTH / 2;
-                ball.y = row * TRACK_HEIGHT + TRACK_HEIGHT / 2;
+                car1.x = col * TRACK_WIDTH + TRACK_WIDTH / 2;
+                car1.y = row * TRACK_HEIGHT + TRACK_HEIGHT / 2;
+            }
+            if (trackGridLayout[arrayIndex] === 3) {
+                trackGridLayout[arrayIndex] = 0;
+                car2.x = col * TRACK_WIDTH + TRACK_WIDTH / 2;
+                car2.y = row * TRACK_HEIGHT + TRACK_HEIGHT / 2;
             }
         }
     } 
@@ -169,7 +191,13 @@ function ballReset() {
 
 function drawEverything() {
     drawRect(canvasContext, canvas); // draw background
-    drawBall(canvasContext, ball); // draw ball
+
+    if (car1PicLoaded) {
+        drawBitmapCenteredWithRotation(canvasContext, car1Pic, car1.x, car1.y, car1.angle);
+    }
+    if (car2PicLoaded) {
+        drawBitmapCenteredWithRotation(canvasContext, car2Pic, car2.x, car2.y, car2.angle);
+    }
     
     for (var i = 0; i < trackGrid.length; i++) { // draw visible tracks
         if (trackGrid[i].state === 1) {
@@ -216,14 +244,14 @@ function handleMouseMove(evt) {
 function toggleCheatMode(e) {
     if (e.keyCode === 99) { // c key
         cheatsOn = !cheatsOn;
-        ball.speedX = 5;
-        ball.speedY = 7;
+        car1.speedX = 5;
+        car1.speedY = 7;
     }
 }
 
 function cheatMode() {
-    ball.x = mouse.x; //cheat mode
-    ball.y = mouse.y;
-    ball.speedX = 4;
-    ball.speedY = -4;
+    car1.x = mouse.x; //cheat mode
+    car1.y = mouse.y;
+    car1.speedX = 4;
+    car1.speedY = -4;
 }
