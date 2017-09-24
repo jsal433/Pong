@@ -30,10 +30,10 @@ var ballOffScreenSound;
 var gameWinSound;
 
 function loadSounds() {
-    brickCollisionSound = new Audio("../Sound/Tab2.m4a");
-    paddleCollisionSound  = new Audio("../Sound/Error5.m4a");
-    ballOffScreenSound = new Audio("../Sound/Error2.m4a");
-    gameWinSound = new Audio("../Sound/Success2.m4a");
+    brickCollisionSound = new Audio("../Sound/Tab2.mp3");
+    paddleCollisionSound  = new Audio("../Sound/Error5.mp3");
+    ballOffScreenSound = new Audio("../Sound/Error2.mp3");
+    gameWinSound = new Audio("../Sound/Success2.mp3");
 }
 
 function Paddle() {
